@@ -261,6 +261,7 @@ class BuildToolBase(object):
             srpm = cls._do_build_srpm(tmp_spec, tmp_dir, tmp_results_dir)
 
         if srpm is None:
+            cls.logs = [l for l in PathHelper.find_all_files(srpm_results_dir, '*.log')]
             raise SourcePackageBuildError("Building SRPM failed!")
         else:
             logger.info("Building SRPM finished successfully")
@@ -509,7 +510,9 @@ class KojiBuildTool(BuildToolBase):
             if task_dict[key] == koji.TASK_STATES['FAILED']:
                 package_failed = True
             task_list.append(key)
-        rpms, logs = cls.koji_helper.download_scratch_build(task_list, os.path.dirname(source).replace('SRPM', 'RPM'))
+        rpms, logs = cls.koji_helper.download_scratch_build(session,
+                                                            task_list,
+                                                            os.path.dirname(source).replace('SRPM', 'RPM'))
         if package_failed:
             weburl = '%s/taskinfo?taskID=%i' % (cls.weburl, task_list[0])
             logger.info('RPM build failed %s', weburl)
