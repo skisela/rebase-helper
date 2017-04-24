@@ -224,6 +224,19 @@ class SpecFile(object):
         :rtype: str
         """
         return os.path.basename(self.get_sources()[0])
+    def source_contains_version(self):
+        """
+        Method returns true if Source0 contains %{version} macro.
+
+        :return: true if Source0 tag contains %{version}
+        :rtype: boolean
+        """
+        for i in self.spec_content:
+            if(i.startswith("Source0:") or i.startswith("Source:")):
+                if(re.search("%{version}", i)):
+                    return True
+        return False
+
 
     def _get_raw_source_string(self, source_num):
         """

@@ -162,13 +162,18 @@ class Application(object):
         """
         Prepare spec files and initialize objects
 
-        :return: 
+        :return:
         """
         self.rebase_spec_file_path = get_rebase_name(self.results_dir, self.spec_file_path)
 
         self.spec_file = SpecFile(self.spec_file_path,
                                   self.execution_dir,
                                   download=not self.conf.not_download_sources)
+
+        # Check if Source0 contains %{version}
+        if(not self.spec_file.source_contains_version()):
+            raise RebaseHelperError("%s", "Source tag does not contain %{version} macro, therefore using rebase-helper is useless")
+
         # Check whether test suite is enabled at build time
         if not self.spec_file.is_test_suite_enabled():
             results_store.set_info_text('WARNING', 'Test suite is not enabled at build time.')
